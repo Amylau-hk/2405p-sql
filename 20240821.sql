@@ -288,3 +288,98 @@ select max(total_amount) from orders o;
 -- Sceondly, DBMS executes "select * from where customer_id in ..."
 select * from orders
 where customer_id = (select id from customers where name like '%LAU');
+
+select * from orders;
+
+insert into orders values (7, 400.0, null, DATE_FORMAT('2023-08-31', '%y-%m-%d'));
+
+-- LEFT JOIN (Left hand side is the main table)
+select c.*, o.*
+from customers c left join orders o on c.id = o.customer_id
+;
+
+select c.*, o.*
+from orders o left join customers c on c.id = o.customer_id
+;
+
+-- RIGHT JOIN (Right hand side is the main table)
+select c.*, o.* 
+from customers c right join orders o on c.id = o.customer_id
+;
+
+select c.*, o.*
+from orders o right join customers c on c.id = o.customer_id
+;
+
+-- Left join + Group by
+-- count(o.id) is different to count(c.id) which can be count the items before join 
+-- Step 1: Left join (key)
+-- Step 2: Where
+-- Step 3: Group by
+-- Step 4: order bt
+-- Step 5: Select -> count(), max(), ifnull()
+
+-- *** null is using 'is' before not '='
+select c.id, c.name, count(o.id) number_of_orders, ifnull(max(total_amount),0) as max_amount_of_orders
+from customers c left join orders o on c.id = o.customer_id
+where o.total_amount > 100.0 or total_amount is null
+group by c.id, c.name
+order by c.name asc
+;
+
+select c.id, c.name, count(o.id) number_of_orders, ifnull(max(total_amount),0) as max_amount_of_orders
+from customers c left join orders o on c.id = o.customer_id and o.total_amount > 100
+group by c.id, c.name
+;
+
+select * from customers;
+insert into customers values (4, 'Mary Chan', 'mary@gamil.com');
+delete from customers where name = 'Mary Chan';
+delete from customers where name = 'John Lau';
+delete from customers where name = 'Peter Wong';
+
+-- Add PK
+-- Unique, Indexing, not null
+ALTER TABLE customers ADD CONSTRAINT pk_customer_id PRIMARY KEY (id);
+
+-- Duplicate value for PK
+insert into customers values (4, 'Mary Chan', 'mary@gamil.com'); -- error, duplicate customer_id
+insert into customers values (5, 'Mary Chan', 'mary@gamil.com'); -- OK
+
+-- Add FK
+ALTER TABLE orders ADD CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES customers(id);
+
+select * from orders;
+insert into orders values (8, 9000, 10, DATE_FORMAT('2024-08-04', '%y-%m-%d')); -- error
+-- because we do not have customer_id 10
+
+insert into orders values (8, 9000, 5, DATE_FORMAT('2024-08-04', '%y-%m-%d')); -- OK, we have customer_id 5
+
+-- Exist primary key and foreign key
+-- Table Design: PK & FK ensures data is inserted / updated with integrity & consistency
+-- Primary Key and foriegn key are also a type of constriants
+-- Every table has one PK only, but may be more than one FK.
+
+-- Other Constriant: Unique Constriant
+-- Unique (one or more columns can be "UNIQUE"
+select * from customers;
+
+ALTER TABLE customers ADD CONSTRAINT unique_email UNIQUE (email);
+insert into customers values (6, 'John Chan', 'john@gmail.com'); -- error, duplicate email
+
+-- NOT NULL (one or more columns can be "NOT NULL")
+ALTER TABLE customers modify name varchar(50) not null;
+
+
+	select name, email 
+	from customers
+	union all
+	select id, total_amount
+	from orders;
+
+-- union -> distinct, remove duplicate items
+-- union all -> append / combine two result set, no matter any duplicated    
+    select 1 from customers
+    union
+    select 1 from orders;
+
