@@ -131,6 +131,9 @@ select jh.employee_id, j.job_title, datediff(jh.end_date, jh.start_date) as numb
 from job_history jh inner join jobs j
 where department_id = 30;
 
-select department_name, manager_name, city, country_name
-from 	
+select d.department_name, concat(e.first_name,' ', e.last_name) as manager_name, l.city, c.country_name
+from departments d
+join employees e on d.department_id = e.department_id
+join locations l on d.location_id = l.location_id
+join countries c on l.country_id = c.country_id 
 
