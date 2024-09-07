@@ -383,3 +383,33 @@ ALTER TABLE customers modify name varchar(50) not null;
     union
     select 1 from orders;
 
+-- Select * -> slow performance
+-- veiw -> selecting the actual at that moment (Not the moment create view)
+create view order_202408
+as
+select * 
+from orders
+where tran_date between date_format('2024-08-01', '%y-%m-%d') and date_format('2024-08-31', '%y-%m-%d'); 
+
+drop view order_202408;
+
+-- PLSQL, PROCEDURE (IF ELSE, FOR LOOP, CURSOR, SQL)
+-- View: Real-time data (i.e. Actual real-time "orders" table data)
+
+-- Sample Procedure
+P_ID INT;
+P_TOTAL_AMOUNT NUMERIC(10,2);
+P_CUSTOMER_ID INT;
+P_TRAN_DATE DATE;
+
+CURSOR C_ORDERS
+IS
+select ID, TOTAL_AMOUNT, CUSTOMER_ID, TRAN_DATE
+from order_202408;
+
+INTO P_ID, P_TOTAL_AMOUNT, P_CUSTOMER_ID, P_TRAN_DATE
+from order_202408;
+
+
+
+
